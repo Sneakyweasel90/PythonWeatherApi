@@ -87,27 +87,20 @@ class WeatherApp(QWidget):
             if data['cod'] == 200:
                 self.display_weather(data)
 
-        except requests.exceptions.HTTPError as e:
-            match response.status_code:
-                case 400:
-                    self.display_error("Bad request:\nPlease check your input")
-                case 401:
-                    self.display_error("Unauthorized:\nInvalid API key")
-                case 403:
-                    self.display_error("Forbidden:\nPlease check your input")
-                case 404:
-                    self.display_error("Not Found:\nCity not found")
-                case 500:
-                    self.display_error("Internal Server Error:\nPlease try again later")
-                case 502:
-                    self.display_error("Bad Gateway:\nInvalid response from the server")
-                case 503:
-                    self.display_error("Service unavailable:\nService is down")
-                case 504:
-                    self.display_error("Gateway timeout:\nNo response from the server")
-                case _:
-                    self.display_error(f"HTTP Error occurred:\n {e}")
 
+        except requests.exceptions.HTTPError as e:
+            status_messages = {
+                400: "Bad request:\nPlease check your input",
+                401: "Unauthorized:\nInvalid API key",
+                403: "Forbidden:\nPlease check your input",
+                404: "Not Found:\nCity not found",
+                500: "Internal Server Error:\nPlease try again later",
+                502: "Bad Gateway:\nInvalid response from the server",
+                503: "Service unavailable:\nService is down",
+                504: "Gateway timeout:\nNo response from the server"
+            }
+            message = status_messages.get(response.status_code, f"HTTP Error occurred:\n {e}")
+            self.display_error(message)
         except requests.exceptions.ConnectionError:
             self.display_error("Connection error:\nCheck your internet connection")
         except requests.exceptions.Timeout:
